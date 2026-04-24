@@ -10,6 +10,8 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byXpath;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.WebDriverConditions.urlContaining;
+import static com.codeborne.selenide.Selenide.webdriver;
 
 public class LoginPage {
 
@@ -37,5 +39,11 @@ public class LoginPage {
         passwordInput.shouldBe(visible).setValue(Credentials.PASSWORD);
         loginButton.click();
         return new DashboardPage();
+    }
+
+    public LoginPage clickLoginButtonAndVerifyValidationError() {
+        loginButton.click();
+        webdriver().shouldHave(urlContaining("/login"));
+        return this;
     }
 }
