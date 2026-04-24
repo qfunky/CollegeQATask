@@ -1,55 +1,65 @@
-# max-tests
+# CollegeQATask
 
-UI-автотест для проверки кнопки «Вход» на сайте Университета Сириус через поиск Google.
+UI-автотест на Java + JUnit 5 + Selenide: проверка страницы входа в личный кабинет Университета Сириус.
 
 ## Стек
 
-- Java 17
+- Java 21
 - Maven
 - JUnit 5
 - Selenide 7.x (управляет драйвером Chrome автоматически через Selenium Manager)
+- dotenv-java (чтение учётных данных из `.env`)
 
 ## Структура проекта
 
 ```
-max-tests/
+CollegeQATask/
+├── .env                  ← создай сам, в git не попадает
+├── .gitignore
 ├── pom.xml
 └── src/test/java/ru/siriusuniversity/tests/
     ├── base/
-    │   └── BaseTest.java                  // инициализация/закрытие браузера
+    │   └── BaseTest.java              // инициализация Chrome, закрытие после теста
     ├── config/
-    │   └── WebDriverConfig.java           // настройки Selenide (browser, size, timeouts)
+    │   ├── Credentials.java           // читает LKS_LOGIN и LKS_PASSWORD из .env
+    │   └── WebDriverConfig.java       // настройки Selenide (browser, size, timeouts)
     ├── pages/
-    │   ├── GoogleSearchPage.java          // Page Object: поисковая страница Google
-    │   └── SiriusUniversityPage.java      // Page Object: главная страница университета
-    └── SiriusUniversityTest.java          // тест на отображение кнопки «Вход»
+    │   ├── DashboardPage.java         // проверка успешного входа (URL ушёл с /login)
+    │   └── LoginPage.java             // Page Object страницы логина
+    └── LoginPageTest.java             // сам тест
 ```
 
-## Требования
+## Настройка учётных данных
 
-- JDK 17+
-- Maven 3.8+
-- Установленный браузер Google Chrome
+Создай файл `.env` в корне проекта:
+
+```
+LKS_LOGIN=your_email@example.com
+LKS_PASSWORD=your_password
+```
+
+Файл `.env` не попадает в git — он добавлен в `.gitignore`.
 
 ## Запуск
 
-Все тесты:
-```
+```bash
 mvn test
 ```
 
-Headless-режим:
-```
+Headless-режим (без открытия окна браузера):
+
+```bash
 mvn test -Dselenide.headless=true
 ```
 
-## Что проверяет тест
+## Что делает тест
 
-`SiriusUniversityTest#loginButtonIsDisplayedOnUniversityPage`:
-1. открывает `https://www.google.com` в Chrome;
-2. вводит «Университет Сириус» в поисковую строку и нажимает Enter;
-3. кликает по результату поиска с заголовком, содержащим «Сириус»;
-4. на открывшейся странице университета проверяет, что кнопка «Вход» видима.
+`LoginPageTest` открывает `https://lks.siriusuniversity.ru/login` и:
+
+| Условие | Сценарий |
+|---|---|
+| `.env` **есть** с данными | кнопка «Войти» видна → вводит логин/пароль → кликает → проверяет, что URL ушёл с `/login` |
+| `.env` **нет** или пустой | кнопка «Войти» видна → кликает без данных → проверяет, что страница осталась на `/login` |
 
 ## Отчёты и скриншоты
 
